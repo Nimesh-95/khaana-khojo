@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khaana Khojo 🍛</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C9A84C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Khaana Khojo">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: rgba(201,168,76,0.15);
+    --ember: #FF6B00;
+    --bg: #0C0C0E;
+    --bg2: #111114;
+    --card: #141418;
+    --card-hover: #1A1A1F;
+    --border: rgba(201,168,76,0.18);
+    --border-subtle: rgba(255,255,255,0.06);
+    --text: #F0EDE6;
+    --text-muted: #6B6460;
+    --text-dim: #9B9490;
+    --zomato: #E23744;
+    --swiggy: #FC8019;
+    --tripadvisor: #34E0A1;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+  body::before {
+    content:''; position:fixed; inset:0;
+    background: radial-gradient(ellipse 80% 50% at 20% 0%,rgba(201,168,76,0.07) 0%,transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%,rgba(255,107,0,0.05) 0%,transparent 50%);
+    pointer-events:none; z-index:0;
+  }
+  body::after {
+    content:''; position:fixed; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events:none; z-index:1; opacity:0.4;
+  }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+  @keyframes slideInLeft { from{transform:translateX(-100%)} to{transform:translateX(0)} }
+  @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+  @keyframes ldot { 0%,80%,100%{transform:translateY(0);opacity:0.6} 40%{transform:translateY(-10px);opacity:1} }
+  @keyframes popIn { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+  /* BACKDROP */
+  .backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); backdrop-filter:blur(6px); z-index:200; animation:fadeIn 0.2s ease; }
+  .backdrop.show { display:block; }
+
+  /* HEADER */
+  header {
+    background:rgba(12,12,14,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    padding:13px 20px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:150; border-bottom:1px solid var(--border-subtle);
+  }
+  .header-left { display:flex; align-items:center; gap:12px; }
+  .header-right { display:flex; align-items:center; gap:10px; }
+  .logo { font-family:'Cormorant Garamond',serif; font-size:25px; font-weight:700; color:var(--gold-light); }
+  .logo em { color:var(--gold); font-style:italic; }
+
+  .icon-btn {
+    width:37px; height:37px; border-radius:9px; border:1px solid var(--border-subtle);
+    background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.2s; font-size:16px; position:relative;
+  }
+  .icon-btn:hover { border-color:var(--border); background:var(--gold-dim); }
+
+  .notif-badge {
+    position:absolute; top:-4px; right:-4px; width:16px; height:16px;
+    background:var(--zomato); border-radius:50%; font-size:9px; font-weight:700;
+    color:#fff; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg);
+  }
+
+  .user-avatar {
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#8B6520);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:#0C0C0E; cursor:pointer;
+    border:2px solid var(--border); transition:all 0.2s; font-family:'Outfit',sans-serif;
+  }
+  .user-avatar:hover { box-shadow:0 0 0 3px var(--gold-dim); transform:scale(1.05); }
+
+  /* SLIDE PANELS */
+  .slide-panel {
+    position:fixed; top:0; height:100vh; width:min(360px,100vw);
+    background:#131317; z-index:250; display:none; flex-direction:column; overflow:hidden;
+  }
+  .slide-panel.left { left:0; border-right:1px solid var(--border-subtle); animation:slideInLeft 0.3s ease; }
+  .slide-panel.right { right:0; border-left:1px solid var(--border-subtle); animation:slideIn 0.3s ease; }
+  .slide-panel.show { display:flex; }
+
+  .panel-hdr {
+    padding:18px 20px 14px; border-bottom:1px solid var(--border-subtle);
+    display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+  }
+  .panel-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; color:var(--gold-light); }
+  .panel-close {
+    width:28px; height:28px; border-radius:50%; border:1px solid var(--border-subtle);
+    background:transparent; color:var(--text-muted); cursor:pointer; font-size:14px;
+    display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+  }
+  .panel-close:hover { color:var(--text); border-color:var(--border); }
+  .panel-body { flex:1; overflow-y:auto; padding:16px; }
+
+  /* NOTIFICATIONS */
+  .notif-item {
+    padding:13px; border-radius:11px; border:1px solid var(--border-subtle);
+    background:rgba(255,255,255,0.02); margin-bottom:9px; transition:all 0.2s;
+  }
+  .notif-item:hover { background:rgba(201,168,76,0.04); border-color:var(--border); }
+  .notif-item.unread { border-color:rgba(201,168,76,0.2); }
+  .notif-row { display:flex; gap:9px; align-items:flex-start; }
+  .notif-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+  .notif-content { flex:1; }
+  .notif-ttl { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .notif-desc { font-size:11px; color:var(--text-muted); line-height:1.5; font-weight:300; }
+  .notif-time { font-size:10px; color:var(--text-muted); margin-top:5px; }
+  .unread-dot { width:7px; height:7px; background:var(--gold); border-radius:50%; flex-shrink:0; margin-top:4px; }
+
+  /* SETTINGS */
+  .s-section { margin-bottom:24px; }
+  .s-sec-title { font-size:9px; text-transform:uppercase; letter-spacing:3px; color:var(--gold); margin-bottom:12px; font-weight:500; }
+  .s-field { margin-bottom:14px; }
+  .field-label { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:var(--gold); margin-bottom:7px; font-weight:500; }
+  .field-input {
+    width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle);
+    border-radius:9px; padding:11px 14px; color:var(--text); font-size:13px;
+    font-family:'Outfit',sans-serif; outline:none; transition:all 0.2s; margin-bottom:0;
+  }
+  .field-input:focus { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+  .field-input::placeholder { color:var(--text-muted); }
+
+  .btn-gold {
+    width:100%; background:linear-gradient(135deg,var(--gold) 0%,#8B6520 50%,var(--gold) 100%);
+    background-size:200% auto; color:#0C0C0E; border:none; border-radius:9px;
+    padding:13px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;
+    letter-spacing:1.5px; text-transform:uppercase; transition:all 0.3s;
+    box-shadow:0 4px 18px rgba(201,168,76,0.2); margin-top:6px;
+  }
+  .btn-gold:hover { background-position:right center; box-shadow:0 6px 26px rgba(201,168,76,0.35); }
+  .btn-gold:disabled { opacity:0.4; cursor:not-allowed; }
+
+  .btn-danger {
+    width:100%; background:transparent; color:#F87171; border:1px solid rgba(248,113,113,0.2);
+    border-radius:9px; padding:12px; font-size:11px; font-weight:600; cursor:pointer;
+    font-family:'Outfit',sans-serif; letter-spacing:1px; text-transform:uppercase; margin-top:8px; transition:all 0.2s;
+  }
+  .btn-danger:hover { background:rgba(248,113,113,0.06); border-color:rgba(248,113,113,0.4); }
+
+  .btn-ghost {
+    width:100%; background:transparent; color:var(--text-muted); border:1px solid var(--border-subtle);
+    border-radius:9px; padding:12px; font-size:12px; font-weight:400; cursor:pointer;
+    font-family:'Outfit',sans-serif; margin-top:8px; transition:all 0.2s;
+  }
+  .btn-ghost:hover { border-color:var(--border); color:var(--text); }
+
+  /* LOGIN MODAL */
+  .modal { display:none; position:fixed; inset:0; z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .modal.show { display:flex; }
+  .modal-box {
+    background:#16161A; border:1px solid var(--border); border-radius:20px;
+    padding:32px 28px; width:100%; max-width:400px; position:relative;
+    animation:slideUp 0.35s ease; z-index:301;
+    box-shadow:0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.06);
+  }
+  .modal-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--gold-light); text-align:center; margin-bottom:4px; }
+  .modal-sub { font-size:11px; color:var(--text-muted); text-align:center; margin-bottom:26px; line-height:1.6; }
+  .modal-step { animation:fadeIn 0.3s ease; }
+  .modal-close {
+    position:absolute; top:14px; right:14px; width:28px; height:28px; border-radius:50%;
+    border:1px solid var(--border-subtle); background:transparent; color:var(--text-muted);
+    cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+  }
+  .modal-close:hover { color:var(--text); border-color:var(--border); }
+
+  .otp-row { display:flex; gap:8px; margin-bottom:16px; justify-content:center; }
+  .otp-box {
+    width:44px; height:52px; border-radius:9px; border:1px solid var(--border-subtle);
+    background:rgba(255,255,255,0.04); color:var(--text); font-size:20px; font-weight:700;
+    text-align:center; font-family:'Outfit',sans-serif; outline:none; transition:all 0.2s;
+  }
+  .otp-box:focus { border-color:var(--gold); background:rgba(201,168,76,0.06); }
+
+  .otp-note { font-size:11px; color:var(--text-muted); text-align:center; margin-top:12px; line-height:1.7; }
+  .otp-note span { color:var(--gold); cursor:pointer; }
+  .otp-note span:hover { text-decoration:underline; }
+
+  .success-icon { font-size:46px; text-align:center; margin-bottom:10px; animation:popIn 0.4s ease; }
+
+  /* HERO */
+  .hero {
+    background:transparent; padding:40px 28px 46px; position:relative; overflow:hidden; z-index:2;
+  }
+  .hero::before {
+    content:''; position:absolute; top:0; left:28px; right:28px; height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:0.35;
+  }
+  .hero::after {
+    content:''; position:absolute; width:500px; height:500px; border-radius:50%;
+    background:radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%);
+    top:-200px; right:-150px; pointer-events:none;
+  }
+  .hero-eyebrow {
+    font-size:9px; letter-spacing:4px; text-transform:uppercase; color:var(--gold);
+    margin-bottom:12px; font-weight:500; display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow::before,.hero-eyebrow::after { content:''; height:1px; width:28px; background:var(--gold); opacity:0.5; }
+  .hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(32px,6vw,52px); color:var(--text); font-weight:600; line-height:1.1; margin-bottom:10px; }
+  .hero h1 em { color:var(--gold-light); font-style:italic; }
+  .hero p { color:var(--text-muted); font-size:12px; margin-bottom:28px; font-weight:300; letter-spacing:0.3px; line-height:1.6; }
+
+  /* LOCATION */
+  .location-bar {
+    background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:13px;
+    padding:12px 15px; display:flex; align-items:center; gap:11px; margin-bottom:11px;
+    transition:all 0.3s; backdrop-filter:blur(10px);
+  }
+  .location-bar:hover { background:rgba(201,168,76,0.05); border-color:var(--border); }
+  .loc-icon {
+    width:34px; height:34px; background:linear-gradient(135deg,var(--gold),#A07830);
+    border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:14px; flex-shrink:0; box-shadow:0 4px 12px rgba(201,168,76,0.2);
+  }
+  .loc-text { flex:1; }
+  .loc-label { font-size:9px; color:var(--gold); text-transform:uppercase; letter-spacing:2px; font-weight:500; }
+  .loc-value { font-size:13px; color:var(--text); font-weight:400; margin-top:2px; }
+  .loc-btn {
+    background:linear-gradient(135deg,var(--gold),#A07830); color:#0C0C0E; border:none;
+    border-radius:7px; padding:7px 13px; font-size:10px; font-weight:700; cursor:pointer;
+    white-space:nowrap; font-family:'Outfit',sans-serif; transition:all 0.2s; letter-spacing:0.5px; text-transform:uppercase;
+  }
+  .loc-btn:hover { opacity:0.85; }
+
+  .manual-input { display:none; gap:8px; }
+  .manual-input.show { display:flex; }
+  .manual-input input {
+    flex:1; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:9px;
+    padding:10px 13px; color:var(--text); font-size:13px; font-family:'Outfit',sans-serif; outline:none;
+  }
+  .manual-input input::placeholder { color:var(--text-muted); }
+  .manual-input input:focus { border-color:var(--gold); }
+  .manual-input button {
+    background:linear-gradient(135deg,var(--gold),#A07830); color:#0C0C0E; border:none;
+    border-radius:9px; padding:10px 16px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:12px;
+  }
+
+  /* FILTERS */
+  .filters-section { padding:22px 28px 10px; border-top:1px solid var(--border-subtle); position:relative; z-index:2; }
+  .filter-label { font-size:9px; text-transform:uppercase; letter-spacing:3px; color:var(--gold); margin-bottom:11px; font-weight:500; }
+  .filter-chips { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .chip {
+    padding:6px 13px; border-radius:6px; border:1px solid var(--border-subtle);
+    background:rgba(255,255,255,0.03); font-size:11px; font-weight:500; cursor:pointer;
+    transition:all 0.2s; color:var(--text-dim); font-family:'Outfit',sans-serif;
+  }
+  .chip:hover { border-color:var(--border); color:var(--text); }
+  .chip.active { background:var(--gold-dim); border-color:var(--border); color:var(--gold-light); }
+
+  .filter-box {
+    background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle);
+    border-radius:11px; padding:13px 15px; margin-bottom:9px;
+  }
+  .filter-box-title { font-size:11px; font-weight:500; color:var(--text-dim); margin-bottom:9px; letter-spacing:0.3px; }
+  .filter-row { display:flex; gap:6px; flex-wrap:wrap; }
+  .fchip {
+    padding:4px 11px; border-radius:5px; border:1px solid var(--border-subtle);
+    background:transparent; font-size:11px; cursor:pointer; transition:all 0.2s;
+    font-family:'Outfit',sans-serif; color:var(--text-muted);
+  }
+  .fchip:hover { border-color:var(--border); color:var(--text); }
+  .fchip.active { background:var(--gold-dim); border-color:var(--border); color:var(--gold-light); font-weight:600; }
+
+  /* PLATFORM FILTER */
+  .platform-filter { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:11px; padding:13px 15px; margin-bottom:9px; }
+  .platform-chips { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+  .pchip {
+    padding:6px 13px; border-radius:6px; border:1.5px solid transparent;
+    font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+    font-family:'Outfit',sans-serif; display:flex; align-items:center; gap:5px; opacity:0.45;
+  }
+  .pchip.zomato { color:var(--zomato); border-color:rgba(226,55,68,0.3); background:rgba(226,55,68,0.06); }
+  .pchip.swiggy { color:var(--swiggy); border-color:rgba(252,128,25,0.3); background:rgba(252,128,25,0.06); }
+  .pchip.tripadvisor { color:var(--tripadvisor); border-color:rgba(52,224,161,0.3); background:rgba(52,224,161,0.06); }
+  .pchip.active { opacity:1; }
+  .pchip.zomato.active { box-shadow:0 0 10px rgba(226,55,68,0.2); }
+  .pchip.swiggy.active { box-shadow:0 0 10px rgba(252,128,25,0.2); }
+  .pchip.tripadvisor.active { box-shadow:0 0 10px rgba(52,224,161,0.15); }
+  .platform-note { font-size:10px; color:var(--text-muted); line-height:1.5; font-weight:300; }
+
+  /* SEARCH BTN */
+  .search-btn {
+    display:block; width:calc(100% - 56px); margin:14px 28px;
+    background:linear-gradient(135deg,var(--gold) 0%,#8B6520 50%,var(--gold) 100%);
+    background-size:200% auto; color:#0C0C0E; border:none; border-radius:10px; padding:15px;
+    font-size:12px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;
+    letter-spacing:2px; text-transform:uppercase; transition:all 0.4s;
+    box-shadow:0 4px 24px rgba(201,168,76,0.2); position:relative; z-index:2;
+  }
+  .search-btn:hover { background-position:right center; transform:translateY(-2px); box-shadow:0 8px 32px rgba(201,168,76,0.35); }
+  .search-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+
+  /* RESULTS */
+  .results-header {
+    padding:8px 28px 10px; display:flex; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--border-subtle); position:relative; z-index:2;
+  }
+  .results-count { font-size:11px; color:var(--text-muted); }
+  .results-count strong { color:var(--gold-light); font-weight:600; }
+  .live-badge { display:flex; align-items:center; gap:5px; font-size:10px; color:#4ADE80; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+  .live-dot { width:6px; height:6px; background:#4ADE80; border-radius:50%; animation:pulse 2s infinite; }
+
+  .results-grid { padding:4px 16px 100px; display:grid; grid-template-columns:1fr; gap:11px; position:relative; z-index:2; }
+
+  /* CARD */
+  .food-card {
+    background:var(--card); border-radius:13px; overflow:hidden; border:1px solid var(--border-subtle);
+    transition:all 0.3s cubic-bezier(0.4,0,0.2,1); animation:fadeUp 0.5s ease both; position:relative;
+  }
+  .food-card::before {
+    content:''; position:absolute; inset:0; border-radius:13px;
+    background:linear-gradient(135deg,rgba(201,168,76,0.04) 0%,transparent 50%);
+    opacity:0; transition:opacity 0.3s; pointer-events:none;
+  }
+  .food-card:hover { transform:translateY(-4px); border-color:var(--border); background:var(--card-hover); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
+  .food-card:hover::before { opacity:1; }
+
+  .card-header { padding:15px 15px 0; display:flex; align-items:flex-start; gap:10px; }
+  .card-emoji {
+    width:42px; height:42px; border-radius:9px; background:rgba(201,168,76,0.08);
+    display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+    border:1px solid rgba(201,168,76,0.12);
+  }
+  .card-info { flex:1; min-width:0; }
+  .card-name { font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-type { font-size:9px; color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; }
+
+  .card-body { padding:10px 15px 13px; }
+  .card-address { font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:9px; display:flex; gap:5px; font-weight:300; }
+
+  .platform-ratings { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:9px; }
+  .pr-badge { display:flex; align-items:center; gap:4px; padding:3px 8px; border-radius:5px; font-size:10px; font-weight:600; border:1px solid; }
+  .pr-badge.zomato { color:var(--zomato); border-color:rgba(226,55,68,0.25); background:rgba(226,55,68,0.07); }
+  .pr-badge.swiggy { color:var(--swiggy); border-color:rgba(252,128,25,0.25); background:rgba(252,128,25,0.07); }
+  .pr-badge.tripadvisor { color:var(--tripadvisor); border-color:rgba(52,224,161,0.25); background:rgba(52,224,161,0.07); }
+
+  .card-tags { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:11px; }
+  .tag { font-size:10px; padding:3px 8px; border-radius:4px; background:rgba(255,255,255,0.04); color:var(--text-muted); border:1px solid var(--border-subtle); }
+  .tag.open { background:rgba(74,222,128,0.08); color:#4ADE80; border-color:rgba(74,222,128,0.2); }
+
+  .card-actions { display:flex; gap:6px; }
+  .btn-maps {
+    flex:1; background:linear-gradient(135deg,var(--gold),#8B6520); color:#0C0C0E; border:none;
+    border-radius:7px; padding:9px; font-size:11px; font-weight:700; cursor:pointer;
+    font-family:'Outfit',sans-serif; text-decoration:none; text-align:center; display:block; transition:opacity 0.2s;
+  }
+  .btn-maps:hover { opacity:0.85; }
+  .btn-sec {
+    background:rgba(255,255,255,0.04); color:var(--text-dim); border:1px solid var(--border-subtle);
+    border-radius:7px; padding:9px 11px; font-size:11px; font-weight:500; cursor:pointer;
+    font-family:'Outfit',sans-serif; text-decoration:none; text-align:center; transition:all 0.2s; white-space:nowrap;
+  }
+  .btn-sec:hover { border-color:var(--border); color:var(--gold-light); background:var(--gold-dim); }
+
+  /* STATE BOX */
+  .state-box { text-align:center; padding:56px 24px; color:var(--text-muted); }
+  .state-box .emoji { font-size:44px; margin-bottom:14px; opacity:0.7; }
+  .state-box h3 { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:var(--text); margin-bottom:7px; }
+  .state-box p { font-size:12px; line-height:1.7; font-weight:300; }
+
+  .loading-dots span {
+    display:inline-block; width:7px; height:7px; background:var(--gold);
+    border-radius:50%; margin:0 3px; animation:ldot 1.3s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay:0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay:0.4s; }
+
+  .dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .dot.green { background:#4ADE80; }
+
+  /* TOAST */
+  .toast {
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(16px);
+    background:#1E1E24; border:1px solid var(--border); border-radius:9px; padding:11px 18px;
+    font-size:12px; color:var(--text); font-weight:500; z-index:500; opacity:0; transition:all 0.3s;
+    white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.4); pointer-events:none;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (min-width:600px) { .results-grid { grid-template-columns:1fr 1fr; } }
+  @media (min-width:900px) {
+    .results-grid { grid-template-columns:1fr 1fr 1fr; }
+    .hero { padding:46px 48px 52px; }
+    .filters-section { padding:22px 48px 10px; }
+    .search-btn { width:calc(100% - 96px); margin:14px 48px; }
+    .results-header { padding:8px 48px 10px; }
+    .results-grid { padding:4px 40px 100px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BACKDROP -->
+<div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+
+<!-- NOTIFICATION PANEL (LEFT) -->
+<div class="slide-panel left" id="notifPanel">
+  <div class="panel-hdr">
+    <div class="panel-title">Notifications</div>
+    <button class="panel-close" onclick="closeNotif()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="notif-item unread">
+      <div class="notif-row">
+        <div class="notif-icon">🔥</div>
+        <div class="notif-content">
+          <div class="notif-ttl">New restaurant nearby!</div>
+          <div class="notif-desc">Spice Garden just opened 0.3 km away — rated 4.6 on Zomato</div>
+        </div>
+        <div class="unread-dot"></div>
+      </div>
+      <div class="notif-time">2 minutes ago</div>
+    </div>
+    <div class="notif-item unread">
+      <div class="notif-row">
+        <div class="notif-icon">⭐</div>
+        <div class="notif-content">
+          <div class="notif-ttl">Rating alert</div>
+          <div class="notif-desc">Bikanervala near you dropped from 4.4 → 4.1 on TripAdvisor</div>
+        </div>
+        <div class="unread-dot"></div>
+      </div>
+      <div class="notif-time">1 hour ago</div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-row">
+        <div class="notif-icon">🎉</div>
+        <div class="notif-content">
+          <div class="notif-ttl">Welcome to Khaana Khojo!</div>
+          <div class="notif-desc">Discover food spots with live ratings from Zomato, Swiggy & TripAdvisor</div>
+        </div>
+      </div>
+      <div class="notif-time">Today</div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-row">
+        <div class="notif-icon">📍</div>
+        <div class="notif-content">
+          <div class="notif-ttl">Location tip</div>
+          <div class="notif-desc">Enable GPS for more accurate food results near you</div>
+        </div>
+      </div>
+      <div class="notif-time">Yesterday</div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL (RIGHT) -->
+<div class="slide-panel right" id="settingsPanel">
+  <div class="panel-hdr">
+    <div class="panel-title">Account Settings</div>
+    <button class="panel-close" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="s-section">
+      <div class="s-sec-title">Profile Details</div>
+      <div class="s-field">
+        <div class="field-label">Full Name</div>
+        <input class="field-input" id="sName" placeholder="Your full name" />
+      </div>
+      <div class="s-field">
+        <div class="field-label">Mobile Number</div>
+        <input class="field-input" id="sMobile" placeholder="+91 98765 43210" type="tel" />
+      </div>
+      <div class="s-field">
+        <div class="field-label">Email Address</div>
+        <input class="field-input" id="sEmail" placeholder="you@email.com" type="email" />
+      </div>
+    </div>
+    <div class="s-section">
+      <div class="s-sec-title">Saved Address</div>
+      <div class="s-field">
+        <div class="field-label">Home Address</div>
+        <input class="field-input" id="sAddress" placeholder="Street, Area, City" />
+      </div>
+      <div class="s-field">
+        <div class="field-label">Pincode</div>
+        <input class="field-input" id="sPin" placeholder="110001" maxlength="6" />
+      </div>
+    </div>
+    <div class="s-section">
+      <div class="s-sec-title">Preferences</div>
+      <div class="s-field">
+        <div class="field-label">Search Radius</div>
+        <select class="field-input" id="sRadius" style="cursor:pointer">
+          <option value="1000">1 km</option>
+          <option value="2500" selected>2.5 km</option>
+          <option value="5000">5 km</option>
+          <option value="10000">10 km</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-gold" onclick="saveSettings()">💾 Save Changes</button>
+    <button class="btn-danger" id="logoutBtn" onclick="logout()" style="display:none">⬡ Sign Out</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeLogin()">✕</button>
+    <div class="modal-logo">Khaana <em>Khojo</em></div>
+    <div class="modal-sub">Sign in to save preferences &amp; get<br>personalised food recommendations</div>
+
+    <!-- Step 1: Mobile -->
+    <div class="modal-step" id="step1">
+      <div class="field-label">Mobile Number</div>
+      <input class="field-input" id="mobileInput" placeholder="+91 98765 43210" type="tel" maxlength="13"
+        onkeydown="if(event.key==='Enter')sendOTP()" style="margin-bottom:16px" />
+      <button class="btn-gold" onclick="sendOTP()">Send OTP →</button>
+      <button class="btn-ghost" onclick="closeLogin()">Skip for now</button>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div class="modal-step" id="step2" style="display:none">
+      <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:16px" id="otpSentTo"></div>
+      <div class="otp-row" id="otpRow">
+        <input class="otp-box" maxlength="1" type="tel" oninput="otpNext(this,0)" onkeydown="otpBack(event,this,0)">
+        <input class="otp-box" maxlength="1" type="tel" oninput="otpNext(this,1)" onkeydown="otpBack(event,this,1)">
+        <input class="otp-box" maxlength="1" type="tel" oninput="otpNext(this,2)" onkeydown="otpBack(event,this,2)">
+        <input class="otp-box" maxlength="1" type="tel" oninput="otpNext(this,3)" onkeydown="otpBack(event,this,3)">
+        <input class="otp-box" maxlength="1" type="tel" oninput="otpNext(this,4)" onkeydown="otpBack(event,this,4)">
+        <input class="otp-box" maxlength="1" type="tel" oninput="otpNext(this,5)" onkeydown="otpBack(event,this,5)">
+      </div>
+      <button class="btn-gold" onclick="verifyOTP()">✓ Verify &amp; Sign In</button>
+      <div class="otp-note">
+        Didn't receive it? <span onclick="resendOTP()" id="resendLink">Resend OTP</span><br>
+        Wrong number? <span onclick="backToMobile()">Change</span>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div class="modal-step" id="step3" style="display:none;text-align:center">
+      <div class="success-icon">🎉</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--gold-light);margin-bottom:6px">Welcome!</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:22px;line-height:1.6">You're signed in. Enjoy discovering great food near you.</div>
+      <button class="btn-gold" onclick="closeLogin()">Start Exploring ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="icon-btn" onclick="openNotif()" title="Notifications">
+      🔔
+      <div class="notif-badge" id="notifBadge">2</div>
+    </div>
+    <div class="logo">Khaana <em>Khojo</em></div>
+  </div>
+  <div class="header-right">
+    <div class="icon-btn" onclick="openSettings()" title="Settings">⚙️</div>
+    <div class="user-avatar" id="userAvatar" onclick="handleAvatarClick()" title="Sign In">?</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">India Food Finder</div>
+  <h1>Find <em>great food</em><br>near you</h1>
+  <p>Restaurants · Dhabas · Cafes · Street food<br>Live ratings from Zomato, Swiggy &amp; TripAdvisor</p>
+
+  <div class="location-bar">
+    <div class="loc-icon">📍</div>
+    <div class="loc-text">
+      <div class="loc-label">Your Location</div>
+      <div class="loc-value" id="locDisplay">Tap to detect location</div>
+    </div>
+    <button class="loc-btn" id="detectBtn" onclick="detectLocation()">📡 Auto</button>
+  </div>
+
+  <div class="manual-input" id="manualInput">
+    <input type="text" id="manualCity" placeholder="e.g. Connaught Place, Delhi"
+      onkeydown="if(event.key==='Enter')setManualLocation()" />
+    <button onclick="setManualLocation()">Go</button>
+  </div>
+
+  <div style="margin-top:10px">
+    <button onclick="toggleManual()" style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);color:var(--gold);padding:7px 13px;border-radius:7px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;text-transform:uppercase;font-weight:500;">
+      ✏️ Enter Manually
+    </button>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-section">
+  <div class="filter-label">Food Type</div>
+  <div class="filter-chips">
+    <div class="chip active" onclick="toggleChip(this,'all')">🍽️ All</div>
+    <div class="chip" onclick="toggleChip(this,'restaurant')">🏠 Restaurant</div>
+    <div class="chip" onclick="toggleChip(this,'cafe')">☕ Cafe</div>
+    <div class="chip" onclick="toggleChip(this,'street food')">🌮 Street Food</div>
+    <div class="chip" onclick="toggleChip(this,'dhaba')">🥘 Dhaba</div>
+    <div class="chip" onclick="toggleChip(this,'bakery')">🧁 Bakery</div>
+    <div class="chip" onclick="toggleChip(this,'biryani')">🍚 Biryani</div>
+    <div class="chip" onclick="toggleChip(this,'chinese')">🥢 Chinese</div>
+    <div class="chip" onclick="toggleChip(this,'pizza')">🍕 Pizza</div>
+  </div>
+
+  <div class="filter-box">
+    <div class="filter-box-title">⭐ Filter by Rating</div>
+    <div class="filter-row">
+      <div class="fchip active" onclick="toggleFchip(this,'all')">All</div>
+      <div class="fchip" onclick="toggleFchip(this,'4.5')">4.5+</div>
+      <div class="fchip" onclick="toggleFchip(this,'4.0')">4.0+</div>
+      <div class="fchip" onclick="toggleFchip(this,'3.5')">3.5+</div>
+      <div class="fchip" onclick="toggleFchip(this,'open')">🟢 Open Now</div>
+    </div>
+  </div>
+
+  <div class="platform-filter">
+    <div class="filter-box-title">📊 Compare Ratings From</div>
+    <div class="platform-chips">
+      <div class="pchip zomato active" onclick="togglePlatform(this,'zomato')">🔴 Zomato</div>
+      <div class="pchip swiggy active" onclick="togglePlatform(this,'swiggy')">🟠 Swiggy</div>
+      <div class="pchip tripadvisor active" onclick="togglePlatform(this,'tripadvisor')">🟢 TripAdvisor</div>
+    </div>
+    <div class="platform-note">ℹ️ Ratings are simulated live data per restaurant. In production, live Zomato/Swiggy/TripAdvisor APIs would power this.</div>
+  </div>
+</div>
+
+<button class="search-btn" id="searchBtn" onclick="searchFood()">✦ Discover Food Near Me</button>
+
+<div id="resultsHeader" class="results-header" style="display:none">
+  <div class="results-count" id="resultsCount"></div>
+  <div class="live-badge"><div class="live-dot"></div>Live Data</div>
+</div>
+
+<div class="results-grid" id="resultsGrid">
+  <div class="state-box" style="grid-column:1/-1">
+    <div class="emoji">🍛</div>
+    <h3>Hungry? Let's go!</h3>
+    <p>Detect your location or enter your area,<br>then tap Discover to find food near you.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // STATE
+  let currentLocation = null;
+  let selectedType = 'all';
+  let selectedRating = 'all';
+  let allResults = [];
+  let activePlatforms = new Set(['zomato','swiggy','tripadvisor']);
+  let currentUser = null;
+  let demoOTP = '';
+  let resendTimer = null;
+
+  // TOAST
+  function showToast(msg, ms=3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), ms);
+  }
+
+  // BACKDROP
+  function closeAll() { closeNotif(); closeSettings(); }
+  function showBd() { document.getElementById('backdrop').classList.add('show'); }
+  function hideBd() { document.getElementById('backdrop').classList.remove('show'); }
+
+  // NOTIFICATIONS
+  function openNotif() {
+    document.getElementById('notifPanel').classList.add('show');
+    document.getElementById('notifBadge').style.display = 'none';
+    showBd();
+  }
+  function closeNotif() {
+    document.getElementById('notifPanel').classList.remove('show');
+    hideBd();
+  }
+
+  // SETTINGS
+  function openSettings() {
+    if (currentUser) {
+      document.getElementById('sName').value = currentUser.name || '';
+      document.getElementById('sMobile').value = currentUser.mobile || '';
+      document.getElementById('logoutBtn').style.display = 'block';
+    }
+    document.getElementById('settingsPanel').classList.add('show');
+    showBd();
+  }
+  function closeSettings() {
+    document.getElementById('settingsPanel').classList.remove('show');
+    hideBd();
+  }
+  function saveSettings() {
+    const name = document.getElementById('sName').value.trim();
+    if (currentUser) {
+      currentUser.name = name;
+      currentUser.mobile = document.getElementById('sMobile').value.trim();
+      updateAvatar(name);
+    }
+    showToast('✅ Settings saved!');
+    closeSettings();
+  }
+
+  // LOGIN
+  function handleAvatarClick() {
+    if (currentUser) openSettings();
+    else openLogin();
+  }
+  function openLogin() {
+    document.getElementById('loginModal').classList.add('show');
+    document.getElementById('backdrop').style.zIndex = '299';
+    showBd();
+  }
+  function closeLogin() {
+    document.getElementById('loginModal').classList.remove('show');
+    document.getElementById('backdrop').style.zIndex = '200';
+    hideBd();
+  }
+
+  function sendOTP() {
+    const mobile = document.getElementById('mobileInput').value.trim();
+    if (mobile.replace(/\D/g,'').length < 10) { showToast('⚠️ Enter a valid 10-digit number'); return; }
+    demoOTP = String(Math.floor(100000 + Math.random() * 900000));
+    console.log('%c🔑 Demo OTP: ' + demoOTP, 'color:#C9A84C;font-size:16px;font-weight:bold');
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('otpSentTo').textContent = 'OTP sent to ' + mobile + ' (check browser console for demo OTP)';
+    setTimeout(() => document.querySelector('.otp-box').focus(), 100);
+    showToast('📱 OTP sent! Check browser console for demo code.');
+    startResendTimer();
+  }
+
+  function otpNext(el, idx) {
+    el.value = el.value.replace(/\D/g,'');
+    const boxes = document.querySelectorAll('.otp-box');
+    if (el.value && idx < 5) boxes[idx+1].focus();
+    if (idx === 5 && el.value) setTimeout(verifyOTP, 200);
+  }
+
+  function otpBack(e, el, idx) {
+    if (e.key === 'Backspace' && !el.value && idx > 0)
+      document.querySelectorAll('.otp-box')[idx-1].focus();
+  }
+
+  function verifyOTP() {
+    const entered = Array.from(document.querySelectorAll('.otp-box')).map(b=>b.value).join('');
+    if (entered.length < 6) { showToast('⚠️ Enter all 6 digits'); return; }
+    const mobile = document.getElementById('mobileInput').value.trim();
+    currentUser = { mobile, name: '', initials: '★' };
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'block';
+    updateAvatar('');
+    document.getElementById('logoutBtn').style.display = 'block';
+  }
+
+  function resendOTP() {
+    demoOTP = String(Math.floor(100000 + Math.random() * 900000));
+    console.log('%c🔑 New Demo OTP: ' + demoOTP, 'color:#C9A84C;font-size:16px;font-weight:bold');
+    showToast('📱 OTP resent! Check console.');
+    startResendTimer();
+  }
+
+  function startResendTimer() {
+    let s = 30;
+    const link = document.getElementById('resendLink');
+    link.style.pointerEvents = 'none'; link.style.opacity = '0.4';
+    link.textContent = `Resend (${s}s)`;
+    if (resendTimer) clearInterval(resendTimer);
+    resendTimer = setInterval(() => {
+      s--;
+      link.textContent = s > 0 ? `Resend (${s}s)` : 'Resend OTP';
+      if (s <= 0) { clearInterval(resendTimer); link.style.pointerEvents = 'auto'; link.style.opacity = '1'; }
+    }, 1000);
+  }
+
+  function backToMobile() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+    document.querySelectorAll('.otp-box').forEach(b => b.value = '');
+  }
+
+  function updateAvatar(name) {
+    const av = document.getElementById('userAvatar');
+    av.textContent = name ? name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '★';
+    av.title = name || 'My Account';
+  }
+
+  function logout() {
+    currentUser = null;
+    const av = document.getElementById('userAvatar');
+    av.textContent = '?'; av.title = 'Sign In';
+    document.getElementById('logoutBtn').style.display = 'none';
+    showToast('👋 Signed out successfully');
+    closeSettings();
+  }
+
+  // LOCATION
+  function detectLocation() {
+    const btn = document.getElementById('detectBtn');
+    const disp = document.getElementById('locDisplay');
+    btn.textContent = '⏳'; btn.disabled = true;
+    disp.textContent = 'Detecting...';
+    if (!navigator.geolocation) {
+      disp.textContent = 'GPS not supported.'; btn.textContent = '📡 Auto'; btn.disabled = false; return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        const {latitude:lat, longitude:lng} = pos.coords;
+        currentLocation = {lat, lng, name:''};
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+          const d = await r.json();
+          const area = d.address.suburb||d.address.neighbourhood||d.address.city_district||d.address.city||'Your area';
+          const city = d.address.city||d.address.state_district||'';
+          currentLocation.name = `${area}, ${city}`;
+          disp.textContent = currentLocation.name;
+        } catch {
+          currentLocation.name = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+          disp.textContent = currentLocation.name;
+        }
+        btn.textContent = '✅'; btn.disabled = false;
+        document.getElementById('manualInput').classList.remove('show');
+        showToast('📍 Location detected!');
+      },
+      () => {
+        disp.textContent = 'Could not detect.'; btn.textContent = '📡 Auto'; btn.disabled = false;
+        document.getElementById('manualInput').classList.add('show');
+      }
+    );
+  }
+
+  function toggleManual() { document.getElementById('manualInput').classList.toggle('show'); }
+
+  async function setManualLocation() {
+    const city = document.getElementById('manualCity').value.trim();
+    if (!city) return;
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city+', India')}&format=json&limit=1`);
+      const d = await r.json();
+      if (d.length > 0) {
+        currentLocation = {lat:parseFloat(d[0].lat), lng:parseFloat(d[0].lon), name:city};
+        document.getElementById('locDisplay').textContent = city;
+        document.getElementById('manualInput').classList.remove('show');
+        showToast(`📍 Location set to ${city}`);
+      } else { showToast('⚠️ Location not found. Try a different name.'); }
+    } catch { showToast('❌ Could not look up location.'); }
+  }
+
+  // FILTERS
+  function toggleChip(el, type) {
+    document.querySelectorAll('.filter-chips .chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active'); selectedType = type;
+  }
+  function toggleFchip(el, val) {
+    el.closest('.filter-row').querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active'); selectedRating = val;
+    if (allResults.length) applyFilters();
+  }
+  function togglePlatform(el, p) {
+    el.classList.toggle('active');
+    activePlatforms.has(p) ? activePlatforms.delete(p) : activePlatforms.add(p);
+    if (allResults.length) applyFilters();
+  }
+
+  // PLATFORM RATINGS — deterministic simulation per restaurant name
+  function getPlatformRatings(name) {
+    const seed = name.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const base = 3.2 + (seed % 18) / 10;
+    return {
+      zomato: Math.min(5, base + 0.2 + (seed*3%10)/30).toFixed(1),
+      swiggy: Math.min(5, base - 0.1 + (seed*7%10)/30).toFixed(1),
+      tripadvisor: Math.min(5, base + 0.15 + (seed*11%10)/30).toFixed(1),
+    };
+  }
+
+  // SEARCH
+  async function searchFood() {
+    if (!currentLocation) { showToast('⚠️ Please set your location first!'); return; }
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true; btn.textContent = '⏳ Searching...';
+    showLoading();
+    try {
+      const radius = document.getElementById('sRadius')?.value || 2500;
+      const overpassQuery = `
+        [out:json][timeout:25];
+        (
+          node["amenity"~"restaurant|cafe|fast_food|bar|food_court|ice_cream|pub"](around:${radius},${currentLocation.lat},${currentLocation.lng});
+          node["cuisine"](around:${radius},${currentLocation.lat},${currentLocation.lng});
+          node["shop"~"bakery|confectionery|deli"](around:${radius},${currentLocation.lat},${currentLocation.lng});
+        );
+        out body;
+      `;
+      const res = await fetch('https://overpass-api.de/api/interpreter', {method:'POST', body:overpassQuery});
+      const data = await res.json();
+      allResults = data.elements.filter(e => e.tags && (e.tags.name || e.tags['name:en']));
+      allResults.forEach(item => {
+        const name = item.tags.name || item.tags['name:en'] || '';
+        item._ratings = getPlatformRatings(name);
+      });
+      if (allResults.length === 0) showEmpty(); else applyFilters();
+    } catch { showError(); }
+    btn.disabled = false; btn.textContent = '✦ Discover Food Near Me';
+  }
+
+  function applyFilters() {
+    let filtered = [...allResults];
+    if (selectedRating === 'open') {
+      filtered = filtered.filter(e => e.tags['opening_hours']?.includes('24/7'));
+    } else if (selectedRating !== 'all') {
+      const min = parseFloat(selectedRating);
+      filtered = filtered.filter(e => {
+        if (!e._ratings || activePlatforms.size === 0) return true;
+        return Array.from(activePlatforms).some(p => parseFloat(e._ratings[p]) >= min);
+      });
+    }
+    renderResults(filtered);
+  }
+
+  function getEmoji(tags) {
+    const a = tags.amenity||'', c = (tags.cuisine||'').toLowerCase();
+    if (a==='cafe') return '☕';
+    if (a==='ice_cream') return '🍦';
+    if (c.includes('pizza')) return '🍕';
+    if (c.includes('chinese')||c.includes('asian')) return '🥢';
+    if (c.includes('biryani')||c.includes('indian')) return '🍛';
+    if (c.includes('burger')||c.includes('american')) return '🍔';
+    if (a==='fast_food') return '🍟';
+    if (tags.shop==='bakery') return '🧁';
+    return '🍽️';
+  }
+
+  function getTypeLabel(tags) {
+    if (tags.amenity==='cafe') return 'Cafe';
+    if (tags.amenity==='fast_food') return 'Fast Food';
+    if (tags.amenity==='ice_cream') return 'Ice Cream';
+    if (tags.shop==='bakery') return 'Bakery';
+    if (tags.cuisine) return tags.cuisine.split(';')[0].replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    return 'Restaurant';
+  }
+
+  function renderResults(items) {
+    const grid = document.getElementById('resultsGrid');
+    const hdr = document.getElementById('resultsHeader');
+    if (!items.length) { showEmpty(); return; }
+    hdr.style.display = 'flex';
+    document.getElementById('resultsCount').innerHTML = `<strong>${items.length}</strong> food spots near ${currentLocation.name}`;
+    grid.innerHTML = items.slice(0,40).map((item,i) => {
+      const t = item.tags;
+      const name = t.name||t['name:en']||'Food Joint';
+      const address = [t['addr:street'],t['addr:housenumber'],t['addr:suburb'],t['addr:city']].filter(Boolean).join(', ')||'See on Maps';
+      const phone = t.phone||t['contact:phone']||'';
+      const r = item._ratings||{};
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&center=${item.lat},${item.lon}`;
+      const zUrl = `https://www.zomato.com/search?q=${encodeURIComponent(name)}`;
+      const isOpen = t['opening_hours']?.includes('24/7');
+
+      const pBadges = Array.from(activePlatforms).map(p => {
+        const icons = {zomato:'🔴',swiggy:'🟠',tripadvisor:'🟢'};
+        const labels = {zomato:'Zomato',swiggy:'Swiggy',tripadvisor:'Trip'};
+        return `<div class="pr-badge ${p}">${icons[p]} ${labels[p]} <strong>${r[p]||'–'}</strong></div>`;
+      }).join('');
+
+      return `
+        <div class="food-card" style="animation-delay:${i*0.04}s">
+          <div class="card-header">
+            <div class="card-emoji">${getEmoji(t)}</div>
+            <div class="card-info">
+              <div class="card-name" title="${name}">${name}</div>
+              <div class="card-type">${getTypeLabel(t)}</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-address"><span>📍</span><span>${address}</span></div>
+            ${pBadges ? `<div class="platform-ratings">${pBadges}</div>` : ''}
+            <div class="card-tags">
+              ${isOpen ? '<span class="tag open"><span class="dot green"></span> 24/7</span>' : ''}
+              ${t['opening_hours'] && !isOpen ? `<span class="tag">${t['opening_hours'].substring(0,26)}</span>` : ''}
+              ${t.cuisine ? `<span class="tag">${t.cuisine.split(';')[0]}</span>` : ''}
+            </div>
+            <div class="card-actions">
+              <a class="btn-maps" href="${mapsUrl}" target="_blank">🗺️ Maps</a>
+              <a class="btn-sec" href="${zUrl}" target="_blank">🔍 Zomato</a>
+              ${phone ? `<a class="btn-sec" href="tel:${phone}">📞</a>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function showLoading() {
+    document.getElementById('resultsHeader').style.display = 'none';
+    document.getElementById('resultsGrid').innerHTML = `
+      <div class="state-box" style="grid-column:1/-1">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <h3 style="margin-top:16px">Finding great food...</h3>
+        <p>Fetching live data &amp; cross-platform ratings<br>within your area</p>
+      </div>`;
+  }
+  function showEmpty() {
+    document.getElementById('resultsHeader').style.display = 'none';
+    document.getElementById('resultsGrid').innerHTML = `
+      <div class="state-box" style="grid-column:1/-1">
+        <div class="emoji">😕</div>
+        <h3>No results found</h3>
+        <p>Try a different area, food type,<br>or relax the rating filter.</p>
+      </div>`;
+  }
+  function showError() {
+    document.getElementById('resultsHeader').style.display = 'none';
+    document.getElementById('resultsGrid').innerHTML = `
+      <div class="state-box" style="grid-column:1/-1">
+        <div class="emoji">📡</div>
+        <h3>Connection issue</h3>
+        <p>Could not fetch results.<br>Check your internet and try again.</p>
+      </div>`;
+  }
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js")
+      .then(r => console.log("✅ PWA ready:", r.scope))
+      .catch(e => console.log("SW error:", e));
+  });
+}
+</script>
+</body>
+</html>
