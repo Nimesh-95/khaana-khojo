@@ -1109,64 +1109,82 @@ function getRestaurantIcon(name, tags) {
 }
 
 // ── SEARCH ──
+// ── OVERPASS MIRRORS (fallback chain if one is down) ──
+const OVERPASS_MIRRORS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+];
+
+async function fetchOverpass(query) {
+  for (let i = 0; i < OVERPASS_MIRRORS.length; i++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout per mirror
+      const res = await fetch(OVERPASS_MIRRORS[i], {
+        method: 'POST',
+        body: query,
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      return data;
+    } catch(e) {
+      console.warn('Mirror ' + i + ' failed:', OVERPASS_MIRRORS[i], e.message);
+      if (i === OVERPASS_MIRRORS.length - 1) throw e; // all mirrors failed
+    }
+  }
+}
+
 async function searchFood() {
   if (!currentLocation) { showToast('⚠️ Please set your location first!'); return; }
   const btn = document.getElementById('searchBtn');
   btn.disabled=true; btn.textContent='⏳ Searching...';
   showLoading();
 
-  // Track
   localStorage.setItem('kk_searches', parseInt(localStorage.getItem('kk_searches')||'0')+1);
   trackEvent('search_food', {location:currentLocation.name, food_type:selectedFoodType, joint_type:selectedJointType});
 
   try {
-    const radius = document.getElementById('sRadius')?.value||2500;
+    const radius = parseInt(document.getElementById('sRadius')?.value||2500);
+    const lat = currentLocation.lat;
+    const lng = currentLocation.lng;
 
-    // Build Overpass query based on joint type filter
-    let jointFilter = '"amenity"~"restaurant|cafe|fast_food|bar|food_court|ice_cream|pub"';
-    if (selectedJointType !== 'all') {
-      if (['restaurant','cafe','fast_food','bar','food_court','ice_cream','pub'].includes(selectedJointType)) {
-        jointFilter = `"amenity"="${selectedJointType}"`;
-      } else if (selectedJointType === 'bakery') {
-        jointFilter = '"shop"="bakery"';
-      } else if (selectedJointType === 'street') {
-        jointFilter = '"amenity"~"fast_food|food_court"';
-      } else if (selectedJointType === 'dhaba') {
-        jointFilter = '"amenity"="restaurant"';
-      }
-    }
+    // SIMPLIFIED single query — always fetch all food amenities, filter client-side
+    // This avoids complex server-side query failures
+    const overpassQuery = `[out:json][timeout:30];
+(
+  node["amenity"~"^(restaurant|cafe|fast_food|bar|food_court|ice_cream|pub|sweet_shop|juice_bar)$"](around:${radius},${lat},${lng});
+  node["shop"~"^(bakery|confectionery|deli)$"](around:${radius},${lat},${lng});
+);
+out body;`;
 
-    const overpassQuery = `
-      [out:json][timeout:25];
-      (
-        node[${jointFilter}](around:${radius},${currentLocation.lat},${currentLocation.lng});
-        node["cuisine"](around:${radius},${currentLocation.lat},${currentLocation.lng});
-        node["shop"~"bakery|confectionery|deli"](around:${radius},${currentLocation.lat},${currentLocation.lng});
-        node["amenity"~"sweet_shop|juice_bar"](around:${radius},${currentLocation.lat},${currentLocation.lng});
-      );
-      out body;
-    `;
+    const data = await fetchOverpass(overpassQuery);
 
-    const res = await fetch('https://overpass-api.de/api/interpreter', {method:'POST', body:overpassQuery});
-    const data = await res.json();
+    if (!data || !data.elements) throw new Error('No data returned');
+
     allResults = data.elements.filter(e => e.tags && (e.tags.name || e.tags['name:en']));
 
-    // Enrich each result
+    // Enrich
     allResults.forEach(item => {
       const name = item.tags.name || item.tags['name:en'] || '';
-      item._ratings = getPlatformRatings(name);
-      item._menu = getMenuItems(name, item.tags);
-      item._icon = getRestaurantIcon(name, item.tags);
-      // Compute average rating for sorting
-      const vals = Object.values(item._ratings).map(parseFloat);
+      item._ratings  = getPlatformRatings(name);
+      item._menu     = getMenuItems(name, item.tags);
+      item._icon     = getRestaurantIcon(name, item.tags);
+      const vals     = Object.values(item._ratings).map(parseFloat);
       item._avgRating = vals.reduce((a,b)=>a+b,0) / vals.length;
     });
 
-    // SORT BY RATING (highest first) — Change 6
+    // Sort by rating — highest first
     allResults.sort((a,b) => b._avgRating - a._avgRating);
 
     if (!allResults.length) showEmpty(); else applyFilters();
-  } catch(e) { showError(); }
+
+  } catch(e) {
+    console.error('Search failed:', e);
+    showError(e.message);
+  }
 
   btn.disabled=false; btn.textContent='✦ Discover Food Near Me';
 }
@@ -1331,13 +1349,18 @@ function showEmpty() {
       <p>Try a different area, food type,<br>or relax the rating filter.</p>
     </div>`;
 }
-function showError() {
+function showError(msg) {
   document.getElementById('resultsHeader').style.display='none';
+  const isTimeout = msg && msg.includes('abort');
   document.getElementById('resultsGrid').innerHTML=`
     <div class="state-box" style="grid-column:1/-1">
-      <div class="emoji">📡</div>
-      <h3>Connection issue</h3>
-      <p>Could not fetch results.<br>Check your internet and try again.</p>
+      <div class="emoji">${isTimeout ? '⏱️' : '📡'}</div>
+      <h3>${isTimeout ? 'Request timed out' : 'Connection issue'}</h3>
+      <p>${isTimeout
+        ? 'The map server took too long.<br>Try increasing the radius or check your internet.'
+        : 'Could not fetch results.<br>Check your internet and try again.'
+      }</p>
+      <button onclick="searchFood()" style="margin-top:16px;background:var(--teal-dim);border:1px solid var(--border-teal);color:var(--teal-light);padding:10px 20px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;">🔄 Retry</button>
     </div>`;
 }
 
