@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Khaana Khojo 🍛</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C9A84C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Khaana Khojo">
-<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- GOOGLE ANALYTICS: Replace G-WMQ00PV74C with your real ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WMQ00PV74C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WMQ00PV74C');
+  var GA_ID = 'G-WMQ00PV74C'; // change this one place only
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -407,12 +410,173 @@
     .results-header { padding:8px 48px 10px; }
     .results-grid { padding:4px 40px 100px; }
   }
+
+  /* ===== SHARE MODAL ===== */
+  .share-modal-box {
+    background:#16161A; border:1px solid var(--border); border-radius:20px;
+    padding:28px 24px; width:100%; max-width:380px; position:relative;
+    animation:slideUp 0.35s ease; z-index:301;
+    box-shadow:0 24px 80px rgba(0,0,0,0.7);
+  }
+  .share-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; color:var(--gold-light); margin-bottom:4px; text-align:center; }
+  .share-sub { font-size:11px; color:var(--text-muted); text-align:center; margin-bottom:22px; }
+  .share-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .share-btn-item {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:7px; padding:14px 10px; border-radius:12px; border:1px solid var(--border-subtle);
+    background:rgba(255,255,255,0.03); cursor:pointer; transition:all 0.2s; text-decoration:none;
+  }
+  .share-btn-item:hover { border-color:var(--border); background:var(--gold-dim); transform:translateY(-2px); }
+  .share-btn-item .s-icon { font-size:26px; }
+  .share-btn-item .s-label { font-size:11px; font-weight:500; color:var(--text-dim); font-family:'Outfit',sans-serif; }
+  .share-link-box {
+    display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.04);
+    border:1px solid var(--border-subtle); border-radius:9px; padding:10px 12px;
+  }
+  .share-link-text { flex:1; font-size:11px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Outfit',sans-serif; }
+  .share-copy-btn {
+    background:linear-gradient(135deg,var(--gold),#8B6520); color:#0C0C0E; border:none;
+    border-radius:6px; padding:6px 12px; font-size:10px; font-weight:700; cursor:pointer;
+    font-family:'Outfit',sans-serif; white-space:nowrap; letter-spacing:0.5px; transition:opacity 0.2s;
+  }
+  .share-copy-btn:hover { opacity:0.85; }
+
+  /* ===== FEEDBACK MODAL ===== */
+  .feedback-modal-box {
+    background:#16161A; border:1px solid var(--border); border-radius:20px;
+    padding:28px 24px; width:100%; max-width:420px; position:relative;
+    animation:slideUp 0.35s ease; z-index:301;
+    box-shadow:0 24px 80px rgba(0,0,0,0.7);
+  }
+  .star-row { display:flex; gap:8px; justify-content:center; margin:14px 0 20px; }
+  .star-btn { font-size:28px; cursor:pointer; transition:transform 0.15s; opacity:0.35; background:none; border:none; }
+  .star-btn:hover, .star-btn.active { opacity:1; transform:scale(1.2); }
+  .feedback-textarea {
+    width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle);
+    border-radius:9px; padding:12px 14px; color:var(--text); font-size:13px;
+    font-family:'Outfit',sans-serif; outline:none; resize:none; height:100px;
+    transition:border-color 0.2s; margin-bottom:14px;
+  }
+  .feedback-textarea:focus { border-color:var(--gold); }
+  .feedback-textarea::placeholder { color:var(--text-muted); }
+  .feedback-tags { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:16px; }
+  .ftag {
+    padding:5px 12px; border-radius:5px; border:1px solid var(--border-subtle);
+    background:transparent; font-size:11px; cursor:pointer; transition:all 0.2s;
+    font-family:'Outfit',sans-serif; color:var(--text-muted);
+  }
+  .ftag:hover { border-color:var(--border); color:var(--text); }
+  .ftag.active { background:var(--gold-dim); border-color:var(--border); color:var(--gold-light); }
+
+  /* ===== ANALYTICS BANNER ===== */
+  .analytics-notice {
+    background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.2);
+    border-radius:10px; padding:12px 16px; margin:0 28px 14px;
+    display:flex; align-items:center; gap:10px; position:relative; z-index:2;
+  }
+  .analytics-notice .an-icon { font-size:18px; flex-shrink:0; }
+  .analytics-notice .an-text { font-size:11px; color:var(--text-muted); line-height:1.5; flex:1; }
+  .analytics-notice .an-text strong { color:var(--gold-light); display:block; margin-bottom:1px; }
+  .analytics-notice .an-close { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; flex-shrink:0; padding:2px; }
+
+  /* FLOATING SHARE BUTTON */
+  .fab-share {
+    position:fixed; bottom:28px; right:20px; z-index:99;
+    width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#8B6520);
+    border:none; cursor:pointer; font-size:20px;
+    box-shadow:0 6px 24px rgba(201,168,76,0.4);
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.25s; animation:fadeIn 1s ease;
+  }
+  .fab-share:hover { transform:scale(1.1) translateY(-2px); box-shadow:0 10px 30px rgba(201,168,76,0.5); }
+
+  /* FEEDBACK FLOATING BTN */
+  .fab-feedback {
+    position:fixed; bottom:90px; right:20px; z-index:99;
+    width:52px; height:52px; border-radius:50%;
+    background:rgba(255,255,255,0.06); border:1px solid var(--border);
+    cursor:pointer; font-size:20px;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.25s; animation:fadeIn 1.2s ease;
+    backdrop-filter:blur(10px);
+  }
+  .fab-feedback:hover { transform:scale(1.1) translateY(-2px); background:var(--gold-dim); border-color:var(--border); }
+
+  /* ANALYTICS DASHBOARD (inside settings) */
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:4px; }
+  .stat-card {
+    background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle);
+    border-radius:10px; padding:12px; text-align:center;
+  }
+  .stat-num { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--gold-light); }
+  .stat-label { font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-top:3px; }
 </style>
 </head>
 <body>
 
 <!-- BACKDROP -->
 <div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+
+
+<!-- SHARE MODAL -->
+<div class="modal" id="shareModal">
+  <div class="share-modal-box">
+    <button class="modal-close" onclick="closeShare()">✕</button>
+    <div class="share-title">Share Khaana Khojo</div>
+    <div class="share-sub">Help your friends discover great food nearby</div>
+    <div class="share-grid">
+      <a class="share-btn-item" id="waShare" href="#" onclick="shareWhatsApp()" target="_blank">
+        <span class="s-icon">💬</span><span class="s-label">WhatsApp</span>
+      </a>
+      <a class="share-btn-item" id="tgShare" href="#" onclick="shareTelegram()" target="_blank">
+        <span class="s-icon">✈️</span><span class="s-label">Telegram</span>
+      </a>
+      <a class="share-btn-item" onclick="shareTwitter()">
+        <span class="s-icon">🐦</span><span class="s-label">Twitter / X</span>
+      </a>
+      <a class="share-btn-item" onclick="copyLink()">
+        <span class="s-icon">🔗</span><span class="s-label">Copy Link</span>
+      </a>
+    </div>
+    <div class="share-link-box">
+      <span class="share-link-text" id="shareLinkText"></span>
+      <button class="share-copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="modal" id="feedbackModal">
+  <div class="feedback-modal-box">
+    <button class="modal-close" onclick="closeFeedback()">✕</button>
+    <div class="share-title">Your Feedback</div>
+    <div class="share-sub">Help us improve Khaana Khojo 🍛</div>
+    <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:4px;">How would you rate the app?</div>
+    <div class="star-row" id="starRow">
+      <button class="star-btn" onclick="setRating(1)">⭐</button>
+      <button class="star-btn" onclick="setRating(2)">⭐</button>
+      <button class="star-btn" onclick="setRating(3)">⭐</button>
+      <button class="star-btn" onclick="setRating(4)">⭐</button>
+      <button class="star-btn" onclick="setRating(5)">⭐</button>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;">What can we improve?</div>
+    <div class="feedback-tags">
+      <div class="ftag" onclick="toggleFtag(this)">🔍 Search Results</div>
+      <div class="ftag" onclick="toggleFtag(this)">⭐ Ratings Accuracy</div>
+      <div class="ftag" onclick="toggleFtag(this)">🎨 Design</div>
+      <div class="ftag" onclick="toggleFtag(this)">📍 Location</div>
+      <div class="ftag" onclick="toggleFtag(this)">⚡ Speed</div>
+      <div class="ftag" onclick="toggleFtag(this)">🔔 Notifications</div>
+    </div>
+    <textarea class="feedback-textarea" id="feedbackText" placeholder="Tell us anything... what you loved, what's missing, ideas for new features!"></textarea>
+    <button class="btn-gold" onclick="submitFeedback()">Submit Feedback ✦</button>
+  </div>
+</div>
+
+<!-- FLOATING BUTTONS -->
+<button class="fab-share" onclick="openShare()" title="Share App">📤</button>
+<button class="fab-feedback" onclick="openFeedback()" title="Give Feedback">💬</button>
 
 <!-- NOTIFICATION PANEL (LEFT) -->
 <div class="slide-panel left" id="notifPanel">
@@ -511,7 +675,17 @@
         </select>
       </div>
     </div>
-    <button class="btn-gold" onclick="saveSettings()">💾 Save Changes</button>
+        <div class="s-section">
+      <div class="s-sec-title">App Stats (Local)</div>
+      <div class="stat-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-num" id="statSearches">—</div><div class="stat-label">Searches</div></div>
+        <div class="stat-card"><div class="stat-num" id="statFeedbacks">—</div><div class="stat-label">Feedbacks</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5;">
+        📊 For full analytics, add your <strong style="color:var(--gold)">Google Analytics ID</strong> to the app.
+      </div>
+    </div>
+<button class="btn-gold" onclick="saveSettings()">💾 Save Changes</button>
     <button class="btn-danger" id="logoutBtn" onclick="logout()" style="display:none">⬡ Sign Out</button>
   </div>
 </div>
@@ -640,6 +814,15 @@
   </div>
 </div>
 
+<!-- ANALYTICS NOTICE -->
+<div class="analytics-notice" id="analyticsNotice">
+  <span class="an-icon">📊</span>
+  <div class="an-text">
+    <strong>Analytics Active</strong>
+    Add your Google Analytics ID to start tracking real users. See setup in README.
+  </div>
+  <button class="an-close" onclick="document.getElementById('analyticsNotice').style.display='none'">✕</button>
+</div>
 <button class="search-btn" id="searchBtn" onclick="searchFood()">✦ Discover Food Near Me</button>
 
 <div id="resultsHeader" class="results-header" style="display:none">
@@ -699,6 +882,9 @@
       document.getElementById('sMobile').value = currentUser.mobile || '';
       document.getElementById('logoutBtn').style.display = 'block';
     }
+    const stats = getLocalStats();
+    document.getElementById('statSearches').textContent = stats.searches;
+    document.getElementById('statFeedbacks').textContent = stats.feedbacks;
     document.getElementById('settingsPanel').classList.add('show');
     showBd();
   }
@@ -1030,15 +1216,133 @@
         <p>Could not fetch results.<br>Check your internet and try again.</p>
       </div>`;
   }
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js")
-      .then(r => console.log("✅ PWA ready:", r.scope))
-      .catch(e => console.log("SW error:", e));
+
+  // ===== SHARE =====
+  const APP_URL = window.location.href.split('?')[0];
+  const APP_MSG = '🍛 Khaana Khojo — Find great food near you with live Zomato, Swiggy & TripAdvisor ratings! Try it: ' + APP_URL;
+
+  function openShare() {
+    document.getElementById('shareLinkText').textContent = APP_URL;
+    document.getElementById('shareModal').classList.add('show');
+    showBd();
+    trackEvent('share_opened');
+  }
+  function closeShare() {
+    document.getElementById('shareModal').classList.remove('show');
+    hideBd();
+  }
+  function shareWhatsApp() {
+    window.open('https://wa.me/?text=' + encodeURIComponent(APP_MSG), '_blank');
+    trackEvent('share_whatsapp');
+    closeShare();
+  }
+  function shareTelegram() {
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(APP_URL) + '&text=' + encodeURIComponent('🍛 Find great food near you!'), '_blank');
+    trackEvent('share_telegram');
+    closeShare();
+  }
+  function shareTwitter() {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(APP_MSG), '_blank');
+    trackEvent('share_twitter');
+    closeShare();
+  }
+  function copyLink() {
+    navigator.clipboard.writeText(APP_URL).then(() => {
+      showToast('✅ Link copied!');
+      trackEvent('share_copy_link');
+    }).catch(() => {
+      showToast('📋 Copy: ' + APP_URL);
+    });
+    closeShare();
+  }
+
+  // Native share (Android)
+  document.querySelector('.fab-share').addEventListener('click', async (e) => {
+    if (navigator.share) {
+      e.stopPropagation();
+      try {
+        await navigator.share({ title: 'Khaana Khojo', text: '🍛 Find great food near you!', url: APP_URL });
+        trackEvent('share_native');
+      } catch {}
+    }
+    // else falls through to openShare() via onclick
   });
-}
+
+  // ===== FEEDBACK =====
+  let selectedRatingFb = 0;
+  let selectedFtags = [];
+
+  function openFeedback() {
+    document.getElementById('feedbackModal').classList.add('show');
+    showBd();
+    trackEvent('feedback_opened');
+  }
+  function closeFeedback() {
+    document.getElementById('feedbackModal').classList.remove('show');
+    hideBd();
+  }
+  function setRating(n) {
+    selectedRatingFb = n;
+    document.querySelectorAll('.star-btn').forEach((s,i) => {
+      s.classList.toggle('active', i < n);
+    });
+  }
+  function toggleFtag(el) {
+    el.classList.toggle('active');
+  }
+  function submitFeedback() {
+    if (selectedRatingFb === 0) { showToast('⭐ Please select a rating first!'); return; }
+    const tags = Array.from(document.querySelectorAll('.ftag.active')).map(t=>t.textContent.trim());
+    const text = document.getElementById('feedbackText').value.trim();
+    // Track in Google Analytics
+    trackEvent('feedback_submitted', {
+      rating: selectedRatingFb,
+      tags: tags.join(','),
+      has_comment: text.length > 0
+    });
+    // Store locally
+    const fb = { rating: selectedRatingFb, tags, text, time: new Date().toISOString(), user: currentUser?.mobile || 'anonymous' };
+    const existing = JSON.parse(localStorage.getItem('kk_feedback') || '[]');
+    existing.push(fb);
+    localStorage.setItem('kk_feedback', JSON.stringify(existing));
+    closeFeedback();
+    showToast('🙏 Thank you for your feedback!');
+    // Reset
+    selectedRatingFb = 0;
+    document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.ftag').forEach(t => t.classList.remove('active'));
+    document.getElementById('feedbackText').value = '';
+  }
+
+  // ===== GOOGLE ANALYTICS HELPER =====
+  function trackEvent(name, params={}) {
+    try {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', name, params);
+      }
+    } catch(e) {}
+  }
+
+  // Track key user actions
+  const _origSearch = searchFood;
+  searchFood = async function() {
+    trackEvent('search_food', { location: currentLocation?.name || 'unknown', type: selectedType });
+    localStorage.setItem('kk_searches', parseInt(localStorage.getItem('kk_searches')||'0') + 1);
+    return _origSearch.apply(this, arguments);
+  };
+
+  // Track on load
+  window.addEventListener('load', () => {
+    trackEvent('app_loaded', { referrer: document.referrer || 'direct' });
+  });
+
+  // ===== ANALYTICS STATS in settings =====
+  function getLocalStats() {
+    const fb = JSON.parse(localStorage.getItem('kk_feedback') || '[]');
+    const searches = parseInt(localStorage.getItem('kk_searches') || '0');
+    return { feedbacks: fb.length, searches };
+  }
+
 </script>
 </body>
 </html>
